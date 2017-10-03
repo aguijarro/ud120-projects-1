@@ -4,7 +4,7 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 import pickle
-
+from time import time
 from outlier_cleaner import outlierCleaner
 
 
@@ -28,12 +28,48 @@ ages_train, ages_test, net_worths_train, net_worths_test = train_test_split(ages
 
 
 
+def getRSquared(reg, ages_train, net_worths_train):
+    return reg.score(ages_train, net_worths_train)
 
 
+def getCoef(reg):
+    return reg.coef_
 
 
+def getIntercept(reg):
+    return reg.intercept_
 
 
+def getPredict(reg, value):
+    return reg.predict([value])
+
+
+def classifyLinearRegression(ages_train, net_worths_train):
+    # import the sklearn module for Linear Regression
+    from sklearn import linear_model
+    # create classifier
+    reg = linear_model.LinearRegression()
+    # fit the classifier on the training features and labels
+    t0 = time()
+    reg.fit(ages_train, net_worths_train)
+    print "training time:", round(time() - t0, 3), "s"
+    # return the fit classifier
+    return reg
+
+
+reg = classifyLinearRegression(ages_train, net_worths_train)
+# Higher rqueared is better
+scoreTrain = getRSquared(reg, ages_train, net_worths_train)
+scoreTest = getRSquared(reg, ages_test, net_worths_test)
+
+
+slope = getCoef(reg)
+intercept = getIntercept(reg)
+
+print "Score Train:", scoreTrain
+print "Score Test:", scoreTest
+print "Slope:", slope
+print "Interceptor:", intercept
 
 
 try:
@@ -55,10 +91,6 @@ except NameError:
 
 
 
-
-
-
-
 ### only run this code if cleaned_data is returning data
 if len(cleaned_data) > 0:
     ages, net_worths, errors = zip(*cleaned_data)
@@ -77,6 +109,17 @@ if len(cleaned_data) > 0:
     plt.xlabel("ages")
     plt.ylabel("net worths")
     plt.show()
+
+    # Higher rqueared is better
+    scoreTrain = getRSquared(reg, ages_test, net_worths_test)
+    #scoreTest = getRSquared(reg, ages_test, net_worths_test)
+    slope = getCoef(reg)
+    intercept = getIntercept(reg)
+
+    print "Score Train without outliers:", scoreTrain
+    #print "Score Test:", scoreTest
+    print "Slope without outliers:", slope
+    print "Interceptor without outliers:", intercept
 
 
 else:
