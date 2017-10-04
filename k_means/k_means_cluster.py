@@ -1,6 +1,6 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 
-""" 
+"""
     Skeleton code for k-means clustering mini-project.
 """
 
@@ -8,14 +8,35 @@
 
 
 import pickle
+import math
 import numpy
 import matplotlib.pyplot as plt
+from time import time
 import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 
 
+def getMax(dataDict, feature):
+    maxValue = 0
+    for k, v in dataDict.items():
+        if math.isnan(float(v[feature])) is False:
+            if v[feature] >= maxValue:
+                maxValue = v[feature]
+    return maxValue
 
+
+def getMin(dataDict, feature):
+    flag = 0
+    for k, v in dataDict.items():
+        if math.isnan(float(v[feature])) is False:
+            if flag == 0:
+                minValue = v[feature]
+                flag = 1
+            else:
+                if v[feature] <= minValue:
+                    minValue = v[feature]
+    return minValue
 
 def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature 1", f2_name="feature 2"):
     """ some plotting code designed to help you visualize your clusters """
@@ -40,33 +61,57 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
 
 ### load in the dict of dicts containing all the data on each person in the dataset
 data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r") )
-### there's an outlier--remove it! 
+### there's an outlier--remove it!
 data_dict.pop("TOTAL", 0)
 
+print "Max Value exercised_stock_options: ", getMax(data_dict, 'exercised_stock_options')
+print "Min Value exercised_stock_options: ", getMin(data_dict, 'exercised_stock_options')
 
-### the input features we want to use 
-### can be any key in the person-level dictionary (salary, director_fees, etc.) 
+print "Max Value salary: ", getMax(data_dict, 'salary')
+print "Min Value salary: ", getMin(data_dict, 'salary')
+
+### the input features we want to use
+### can be any key in the person-level dictionary (salary, director_fees, etc.)
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+feature_3 = "total_payments"
 poi  = "poi"
+#features_list = [poi, feature_1, feature_2, feature_3]
 features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
 
 
+
+
+
 ### in the "clustering with 3 features" part of the mini-project,
-### you'll want to change this line to 
+### you'll want to change this line to
 ### for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
-for f1, f2 in finance_features:
+### for f1, f2, _ in finance_features:
+for f1, f2, in finance_features:
     plt.scatter( f1, f2 )
 plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
 
+def classifyCluster(finance_features):
+    # import the sklearn module for Linear Regression
+    from sklearn.cluster import KMeans
+    # create classifier
+    clf = KMeans(n_clusters=2, random_state=0)
+    # fit the classifier on the training features and labels
+    t0 = time()
+    clf.fit(finance_features)
+    print "training time:", round(time() - t0, 3), "s"
+    # return the fit classifier
+    return clf
 
 
+clf = classifyCluster(finance_features)
+pred = clf.predict(finance_features)
 
 ### rename the "name" parameter when you change the number of features
 ### so that the figure gets saved to a different file
