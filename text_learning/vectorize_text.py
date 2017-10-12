@@ -39,25 +39,51 @@ temp_counter = 0
 
 for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
     for path in from_person:
+
         ### only look at first 200 emails when developing
         ### once everything is working, remove this line to run over full dataset
-        temp_counter += 1
-        if temp_counter < 200:
+        #temp_counter += 1
+        if temp_counter < 100:
             path = os.path.join('..', path[:-1])
-            print path
             email = open(path, "r")
 
             ### use parseOutText to extract the text from the opened email
 
+            text_opened_email = parseOutText(email)
+
             ### use str.replace() to remove any instances of the words
             ### ["sara", "shackleton", "chris", "germani"]
 
+            '''search_list = ["sara",
+                           "shackleton",
+                           "chris",
+                           "germani",
+                           "sshacklensf",
+                           "cgermannsf"]'''
+
+            search_list = ["sara",
+                           "shackleton",
+                           "chris",
+                           "germani",
+                           "sshacklensf",
+                           "cgermannsf"]
+
+            #for word in word_instance:
+            #    text=text.replace(word,"")
+
+            for word in search_list:
+                text_opened_email = text_opened_email.replace(word, "")
             ### append the text to word_data
-
+            ## word_data.append(re.sub('\s+', ' ', text_opened_email).strip())
+            word_data.append(text_opened_email)
             ### append a 0 to from_data if email is from Sara, and 1 if email is from Chris
-
+            if name == 'sara':
+                from_data.append(0)
+            else:
+                from_data.append(1)
 
             email.close()
+
 
 print "emails processed"
 from_sara.close()
@@ -66,10 +92,21 @@ from_chris.close()
 pickle.dump( word_data, open("your_word_data.pkl", "w") )
 pickle.dump( from_data, open("your_email_authors.pkl", "w") )
 
-
-
-
+print "word_data_len: ", len(word_data)
+#print "word_data[152]: ", word_data[152]
 
 ### in Part 4, do TfIdf vectorization here
+from sklearn.feature_extraction.text import TfidfVectorizer
+vectorizer = TfidfVectorizer(stop_words="english", lowercase=True)
+vectorizer.fit_transform(word_data)
 
+print "Unit 10-20: How many unique words are in your TfIdf?"
+vocab_list = vectorizer.get_feature_names()
+print len(vocab_list)
 
+print "Feature words 34597:", vocab_list[34597]
+
+print "Feature words 19671:", vocab_list[19671]
+print "Feature words 24321:", vocab_list[24321]
+print "Feature words 33201:", vocab_list[33201]
+print "Feature words 33614:", vocab_list[33614]
