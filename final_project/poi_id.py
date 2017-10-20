@@ -63,6 +63,8 @@ with open("final_project_dataset.pkl", "r") as data_file:
 
 ### Task 3: Create new feature(s)
 
+## Code taken from a post in Udacity forum. (https://goo.gl/JkJyv4)
+
 for employee in data_dict:
     if (data_dict[employee]['to_messages'] not in ['NaN', 0]) and (data_dict[employee]['from_this_person_to_poi'] not in ['NaN', 0]):
         data_dict[employee]['from_poi'] = float(data_dict[employee]['to_messages'])/float(data_dict[employee]['from_this_person_to_poi'])
